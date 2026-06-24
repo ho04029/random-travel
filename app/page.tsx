@@ -1,5 +1,7 @@
+'use client';
+
 // import Image from 'next/image';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { Button } from './components/Button';
 
 export default function Home() {
@@ -9,7 +11,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Hero Section */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white">
+        <div className="mb-8 rounded-2xl bg-linear-to-r from-blue-600 to-purple-600 p-8 text-white">
           <h1 className="mb-4">다음 여행은 어디로 떠날까요?</h1>
           <p className="mb-6 text-blue-100">
             랜덤으로 새로운 여행지를 추천받고, 친구와 함께 특별한 추억을
