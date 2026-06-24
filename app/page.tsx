@@ -2,7 +2,15 @@
 
 // import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { Shuffle, MapPin, Users, Calendar } from 'lucide-react';
 import { Button } from './components/Button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from './components/Card';
 
 export default function Home() {
   const router = useRouter();
@@ -22,22 +30,22 @@ export default function Home() {
             className="bg-white text-blue-600 hover:bg-gray-100"
             onClick={() => router.push('/random')}
           >
-            {/* <Shuffle className="mr-2 h-5 w-5" /> */}
+            <Shuffle className="mr-2 h-5 w-5" />
             여행지 뽑기
           </Button>
         </div>
 
         {/* Stats */}
         <div className="mb-8 grid gap-6 md:grid-cols-3">
-          {/* <Card>
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm">다녀온 도시</CardTitle>
               <MapPin className="text-muted-foreground h-4 w-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{visitedCities}개</div>
+              {/* <div className="text-2xl font-bold">{visitedCities}개</div> */}
               <p className="text-muted-foreground text-xs">
-                전체 {destinations.length}개 중
+                {/* 전체 {destinations.length}개 중 */}
               </p>
             </CardContent>
           </Card>
@@ -49,7 +57,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {friends.filter((f) => f.status === 'accepted').length}명
+                {/* {friends.filter((f) => f.status === 'accepted').length}명 */}
               </div>
               <p className="text-muted-foreground text-xs">
                 함께 여행할 친구들
@@ -63,21 +71,21 @@ export default function Home() {
               <Calendar className="text-muted-foreground h-4 w-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{trips.length}개</div>
+              {/* <div className="text-2xl font-bold">{trips.length}개</div> */}
               <p className="text-muted-foreground text-xs">소중한 추억들</p>
             </CardContent>
-          </Card> */}
+          </Card>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Recent Trips */}
-          {/* <Card>
+          <Card>
             <CardHeader>
               <CardTitle>최근 여행기</CardTitle>
               <CardDescription>다녀온 여행의 추억들</CardDescription>
             </CardHeader>
             <CardContent>
-              {trips.length > 0 ? (
+              {/* {trips.length > 0 ? (
                 <div className="space-y-4">
                   {trips.slice(0, 3).map((trip) => (
                     <div
@@ -113,18 +121,18 @@ export default function Home() {
                     첫 여행 기록하기
                   </Button>
                 </div>
-              )}
+              )} */}
             </CardContent>
-          </Card> */}
+          </Card>
 
           {/* Travel Groups */}
-          {/* <Card>
+          <Card>
             <CardHeader>
               <CardTitle>여행 그룹</CardTitle>
               <CardDescription>친구별 여행 이력</CardDescription>
             </CardHeader>
             <CardContent>
-              {travelGroups.length > 0 ? (
+              {/* {travelGroups.length > 0 ? (
                 <div className="space-y-4">
                   {travelGroups.map((group) => {
                     const friendNames = group.friendIds
@@ -169,19 +177,19 @@ export default function Home() {
                     친구 추가하기
                   </Button>
                 </div>
-              )}
+              )} */}
             </CardContent>
-          </Card> */}
+          </Card>
         </div>
 
         {/* Quick Actions */}
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <Button
-            // variant="outline"
+            variant="outline"
             className="flex h-auto flex-col gap-2 py-6"
             onClick={() => router.push('/random')}
           >
-            {/* <Shuffle className="h-6 w-6" /> */}
+            <Shuffle className="h-6 w-6" />
             <span>랜덤 여행지 뽑기</span>
           </Button>
           <Button
@@ -189,15 +197,15 @@ export default function Home() {
             className="flex h-auto flex-col gap-2 py-6"
             onClick={() => router.push('/trips/new')}
           >
-            {/* <Calendar className="h-6 w-6" /> */}
+            <Calendar className="h-6 w-6" />
             <span>여행 기록하기</span>
           </Button>
           <Button
-            // variant="outline"
+            variant="outline"
             className="flex h-auto flex-col gap-2 py-6"
             onClick={() => router.push('/friends')}
           >
-            {/* <Users className="h-6 w-6" /> */}
+            <Users className="h-6 w-6" />
             <span>친구 관리</span>
           </Button>
         </div>
