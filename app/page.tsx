@@ -16,7 +16,7 @@ export default function Home() {
             만들어보세요
           </p>
           <Button
-            // size="lg"
+            size="lg"
             className="bg-white text-blue-600 hover:bg-gray-100"
             onClick={() => router.push('/random')}
           >
@@ -183,7 +183,7 @@ export default function Home() {
             <span>랜덤 여행지 뽑기</span>
           </Button>
           <Button
-            // variant="outline"
+            variant="outline"
             className="flex h-auto flex-col gap-2 py-6"
             onClick={() => router.push('/trips/new')}
           >
