@@ -3,6 +3,7 @@
 // import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Shuffle, MapPin, Users, Calendar } from 'lucide-react';
+import { Navbar } from './components/Navbar';
 import { Button } from './components/Button';
 import {
   Card,
@@ -17,6 +18,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="mb-8 rounded-2xl bg-linear-to-r from-blue-600 to-purple-600 p-8 text-white">
