@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/app/lib/supabase';
 import { MapPin } from 'lucide-react';
 import { Button } from '@/app/components/Button';
 import { Input } from '@/app/components/Input';
@@ -24,7 +25,7 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     // TODO: 회원가입 로직
     // TODO: alert -> toast나 다른 모달창으로 수정하기
     e.preventDefault();
@@ -32,12 +33,22 @@ export default function Signup() {
       alert('모든 필드를 입력해주세요');
       return;
     }
+    if (password.length < 6) {
+      alert('비밀번호를 6자 이상 입력해주세요');
+      return;
+    }
     if (password !== confirmPassword) {
       alert('비밀번호가 일치하지 않습니다');
       return;
     }
-    alert('회원가입 성공!');
-    router.push('/');
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    if (data.user) {
+      alert('회원가입에 성공하셨습니다');
+      router.replace('/');
+    }
   };
 
   return (
