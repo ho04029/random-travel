@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/app/lib/supabase';
-import { MapPin } from 'lucide-react';
+import { MapPin, Loader2 } from 'lucide-react';
 import { Button } from '@/app/components/Button';
 import { Input } from '@/app/components/Input';
 import { Label } from '@/app/components/Label';
@@ -21,14 +21,14 @@ export default function Signup() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    // TODO: 회원가입 로직
     // TODO: alert -> toast나 다른 모달창으로 수정하기
     e.preventDefault();
+    // 유효성 검사
     if (!name || !email || !password || !confirmPassword) {
       alert('모든 필드를 입력해주세요');
       return;
@@ -41,13 +41,34 @@ export default function Signup() {
       alert('비밀번호가 일치하지 않습니다');
       return;
     }
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (data.user) {
-      alert('회원가입에 성공하셨습니다');
-      router.replace('/');
+
+    // 회원가입 로직
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+          },
+        },
+      });
+
+      if (error) {
+        console.error(error);
+        alert('회원가입 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요');
+        return;
+      }
+      if (data.user) {
+        alert('회원가입에 성공하셨습니다');
+        router.replace('/');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('회원가입 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,6 +94,7 @@ export default function Signup() {
                 placeholder="홍길동"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -83,16 +105,7 @@ export default function Signup() {
                 placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="id">아이디</Label>
-              <Input
-                id="id"
-                type="text"
-                placeholder="yourId"
-                value={id}
-                onChange={(e) => setId(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -103,6 +116,7 @@ export default function Signup() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -113,10 +127,15 @@ export default function Signup() {
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
-            <Button type="submit" className="w-full">
-              회원가입
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                '회원가입'
+              )}
             </Button>
           </form>
 
