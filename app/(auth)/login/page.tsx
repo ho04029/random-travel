@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/app/lib/supabase';
+import { MapPin } from 'lucide-react';
 import { Button } from '@/app/components/Button';
 import { Input } from '@/app/components/Input';
 import { Label } from '@/app/components/Label';
@@ -13,23 +15,43 @@ import {
   CardHeader,
   CardTitle,
 } from '@/app/components/Card';
-import { MapPin } from 'lucide-react';
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    // TODO: 회원가입 로직
+  const handleSubmit = async (e: React.FormEvent) => {
     // TODO: alert -> toast나 다른 모달창으로 수정하기
     e.preventDefault();
+    // 유효성 검사
     if (!email || !password) {
       alert('이메일과 비밀번호를 입력해주세요');
       return;
     }
+
+    // 로그인
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error(error);
+        alert('로그인 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요');
+        return;
+      }
+      if (data.user) {
+        alert('로그인에 성공하셨습니다');
+        router.replace('/');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('회원가입 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요');
+    }
     alert('로그인 성공!');
-    router.push('/');
+    router.replace('/');
   };
 
   return (
