@@ -3,15 +3,15 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Shuffle, MapPin, Users, Calendar } from 'lucide-react';
-import { Navbar } from './components/Navbar';
-import { Button } from './components/Button';
+import { Navbar } from '../components/Navbar';
+import { Button } from '../components/Button';
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardDescription,
-} from './components/Card';
+} from '../components/Card';
 
 export default function Home() {
   const router = useRouter();

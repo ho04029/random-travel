@@ -3,18 +3,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/app/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { MapPin, Loader2 } from 'lucide-react';
-import { Button } from '@/app/components/Button';
-import { Input } from '@/app/components/Input';
-import { Label } from '@/app/components/Label';
+import { Button } from '@/components/Button';
+import { Input } from '@/components/Input';
+import { Label } from '@/components/Label';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/app/components/Card';
+} from '@/components/Card';
 
 export default function Signup() {
   const router = useRouter();
