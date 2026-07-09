@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/utils/supabase/client';
 import { MapPin } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
