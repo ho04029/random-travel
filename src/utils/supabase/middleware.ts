@@ -41,7 +41,7 @@ export async function updateSession(request: NextRequest) {
   //     return NextResponse.redirect(url);
   //   }
 
-  // 로그인 상태에서 signup/login 접근 시 홈으로
+  // 로그인 상태에서 (auth) 접근 시 홈으로
   if (user && ['/login', '/signup'].includes(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = '/';
