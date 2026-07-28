@@ -1,7 +1,19 @@
+'use client';
+
 import Link from 'next/link';
-import { MapPin, Home, Shuffle, Users, FileText, Share2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import {
+  MapPin,
+  Home,
+  Shuffle,
+  Users,
+  FileText,
+  Share2,
+  LogOut,
+} from 'lucide-react';
 import { cn } from '../utils/cn';
 import { Button, buttonVariants } from './Button';
+import { useUser } from '@/hooks/useUser';
 
 const navItems = [
   {
@@ -33,6 +45,14 @@ const navItems = [
 ];
 
 export function Navbar() {
+  const { user, loading, signOut } = useUser();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.refresh();
+  };
+
   return (
     <nav className="sticky top-0 z-50 border-b bg-white">
       <div className="container mx-auto px-4">
@@ -66,8 +86,21 @@ export function Navbar() {
             ))}
           </div>
 
-          <Button variant="outline">{'사용자'}</Button>
-          {/* <Button variant="outline">{user?.name || '사용자'}</Button> */}
+          {loading ? null : user ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">
+                {user.user_metadata?.name ?? user.email} 님
+              </span>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="mr-1 h-4 w-4" />
+                로그아웃
+              </Button>
+            </div>
+          ) : (
+            <Link href="/login">
+              <Button variant="outline">로그인</Button>
+            </Link>
+          )}
         </div>
       </div>
     </nav>
