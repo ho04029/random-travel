@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 // import Image from 'next/image';
+import { supabase } from '@/utils/supabase/client';
+import { cn } from '@/utils/cn';
 import { Destination } from '@/types/destination';
 import { Shuffle, Share2, Heart, MapPin } from 'lucide-react';
 import { Button } from '@/components/Button';
@@ -13,12 +15,12 @@ import {
   CardTitle,
 } from '@/components/Card';
 import { Checkbox } from '@/components/Checkbox';
-import { supabase } from '@/utils/supabase/client';
 
 export default function RandomPick() {
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [excludeVisited, setExcludeVisited] = useState(false);
   const [result, setResult] = useState<Destination | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // todo: 기존에 갔던 여행지 제외하기
   const handleRandomPick = async () => {
@@ -44,9 +46,21 @@ export default function RandomPick() {
       return;
     }
     selectedFriendIds.forEach((friendId) => {
+      console.log(friendId);
       // shareDestination(result.id, friendId, `${result.name} 같이 가요!`);
     });
     alert('여행지를 공유했습니다!');
+  };
+
+  // todo: 좋아요
+  const handleFavorite = async () => {
+    // 좋아요 삭제
+    if (isFavorite) {
+      setIsFavorite(false);
+    } else {
+      // 좋아요
+      setIsFavorite(true);
+    }
   };
 
   return (
@@ -61,7 +75,7 @@ export default function RandomPick() {
           </div>
 
           <div className="grid gap-8 lg:grid-cols-2">
-            {/* Filters */}
+            {/* 필터 */}
             <Card>
               <CardHeader>
                 <CardTitle>필터 설정</CardTitle>
@@ -89,7 +103,7 @@ export default function RandomPick() {
               </CardContent>
             </Card>
 
-            {/* Result */}
+            {/* 추첨 결과*/}
             <Card>
               <CardHeader>
                 <CardTitle>추첨 결과</CardTitle>
@@ -133,8 +147,13 @@ export default function RandomPick() {
                           <Share2 className="mr-2 h-4 w-4" />
                           공유
                         </Button>
-                        <Button variant="outline">
-                          <Heart className="h-4 w-4" />
+                        <Button variant="outline" onClick={handleFavorite}>
+                          <Heart
+                            className={cn(
+                              'h-4 w-4 transition-colors',
+                              isFavorite && 'fill-red-500 text-red-500',
+                            )}
+                          />
                         </Button>
                       </div>
                     </div>
