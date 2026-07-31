@@ -4,6 +4,7 @@ import { useState } from 'react';
 // import Image from 'next/image';
 import { supabase } from '@/utils/supabase/client';
 import { cn } from '@/utils/cn';
+import { useUser } from '@/hooks/useUser';
 import { Destination } from '@/types/destination';
 import { Shuffle, Share2, Heart, MapPin } from 'lucide-react';
 import { Button } from '@/components/Button';
@@ -17,6 +18,8 @@ import {
 import { Checkbox } from '@/components/Checkbox';
 
 export default function RandomPick() {
+  const { user } = useUser();
+
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [excludeVisited, setExcludeVisited] = useState(false);
   const [result, setResult] = useState<Destination | null>(null);
@@ -52,13 +55,46 @@ export default function RandomPick() {
     alert('여행지를 공유했습니다!');
   };
 
+  // 좋아요 추가
+  const addFavorite = async () => {
+    // 로그인이 되어있지 않은 경우
+    if (!user) return;
+    if (!result) return;
+
+    const { error } = await supabase.from('favorite_destinations').insert({
+      user_id: user.id,
+      destination_id: result.id,
+    });
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    console.log('저장 완료');
+  };
+
+  const removeFavorite = async () => {
+    // 로그인이 되어있지 않은 경우
+    if (!user) return;
+    if (!result) return;
+
+    await supabase
+      .from('favorite_destinations')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('destination_id', result.id);
+  };
+
   // todo: 좋아요
   const handleFavorite = async () => {
     // 좋아요 삭제
     if (isFavorite) {
+      await removeFavorite();
       setIsFavorite(false);
     } else {
       // 좋아요
+      await addFavorite();
       setIsFavorite(true);
     }
   };
