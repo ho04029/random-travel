@@ -25,16 +25,36 @@ export default function RandomPick() {
   const [result, setResult] = useState<Destination | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
 
+  // 좋아요했던 여행지인지 아닌지 체크
+  const checkFavorite = async (destinationId: string) => {
+    if (!user) return;
+    if (!result) return;
+
+    const { data } = await supabase
+      .from('favorite_destinations')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('destination_id', destinationId)
+      .maybeSingle();
+
+    setIsFavorite(!!data);
+  };
+
   // todo: 기존에 갔던 여행지 제외하기
+  // 랜덤 여행지 뽑기
   const handleRandomPick = async () => {
     try {
       const { data, error } = await supabase.rpc('random_destination');
-      setResult(data[0]);
       if (error) {
         console.error(error);
         alert('문제가 발생했습니다. 잠시 후 다시 시도해주세요');
         return;
       }
+
+      const destination = data[0];
+      setResult(destination);
+      // 좋아요했던 여행지인지 아닌지 체크
+      await checkFavorite(destination.id);
     } catch (error) {
       console.error(error);
       alert('문제가 발생했습니다. 잠시 후 다시 시도해주세요');
@@ -86,7 +106,7 @@ export default function RandomPick() {
       .eq('destination_id', result.id);
   };
 
-  // todo: 좋아요
+  // 좋아요 버튼
   const handleFavorite = async () => {
     // 좋아요 삭제
     if (isFavorite) {
