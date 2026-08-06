@@ -1,7 +1,3 @@
-export interface Destination {
-  id: string;
-  name: string;
-  province?: string;
-  regn_cd: number;
-  signgu_cd?: number;
-}
+import { Tables } from '@/utils/supabase/database.type';
+
+export type Destination = Tables<'destinations'>;
