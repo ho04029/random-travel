@@ -30,16 +30,16 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // 비로그인 상태에서 보호된 경로 접근 시 리다이렉트
-  //   const protectedPaths = [];
-  //   const isProtected = protectedPaths.some((path) =>
-  //     request.nextUrl.pathname.startsWith(path),
-  //   );
+  const protectedPaths = ['/favorite'];
+  const isProtected = protectedPaths.some((path) =>
+    request.nextUrl.pathname.startsWith(path),
+  );
 
-  //   if (!user && isProtected) {
-  //     const url = request.nextUrl.clone();
-  //     url.pathname = '/login';
-  //     return NextResponse.redirect(url);
-  //   }
+  if (!user && isProtected) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
 
   // 로그인 상태에서 (auth) 접근 시 홈으로
   if (user && ['/login', '/signup'].includes(request.nextUrl.pathname)) {
