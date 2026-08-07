@@ -11,6 +11,7 @@ import {
   Users,
   FileText,
   Share2,
+  Heart,
   LogOut,
   Menu,
   X,
@@ -39,6 +40,11 @@ const navItems = [
     href: '/trips',
     label: '여행기',
     icon: FileText,
+  },
+  {
+    href: '/favorite',
+    label: '좋아요',
+    icon: Heart,
   },
   {
     href: '/shared',
