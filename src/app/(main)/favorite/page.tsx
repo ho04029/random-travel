@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Heart, MapPin, FileText } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/utils/supabase/client';
 import { Card, CardContent } from '@/components/Card';
 import { Button } from '@/components/Button';
+import { cn } from '@/utils/cn';
+import { favoritesQueryKey, useFavorite } from '@/hooks/useFavorite';
 import { QueryData } from '@supabase/supabase-js';
 
 const query = supabase.from('favorite_destinations').select(`
@@ -21,37 +23,79 @@ const query = supabase.from('favorite_destinations').select(`
 
 type Favorites = QueryData<typeof query>;
 
-export default function FavoritePage() {
+function FavoriteCard({ favorite }: { favorite: Favorites[number] }) {
   const router = useRouter();
-  const [favorites, setFavorites] = useState<Favorites>([]);
-  const [loading, setLoading] = useState(true);
+  const { isFavorite, toggleFavorite } = useFavorite(favorite.destinations.id);
 
-  useEffect(() => {
-    const fetchFavorites = async () => {
+  return (
+    <Card>
+      <CardContent className="flex items-center justify-between p-6">
+        <div>
+          <h3 className="mb-2 font-semibold">{favorite.destinations.name}</h3>
+
+          <div className="mb-3 flex flex-wrap gap-2">
+            <span className="inline-flex items-center rounded bg-blue-100 px-2 py-1 text-xs text-blue-700">
+              <MapPin className="mr-1 h-3 w-3" />
+              {favorite.destinations.province
+                ? favorite.destinations.province
+                : favorite.destinations.name}
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label="좋아요 취소"
+            onClick={toggleFavorite}
+          >
+            <Heart
+              className={cn(
+                'h-5 w-5 transition-colors',
+                isFavorite && 'fill-red-500 text-red-500',
+              )}
+            />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() =>
+              // todo: 경로 어떻게 할지 좀 더 생각해보기
+              router.push(`/trips/new?destination=${favorite.destinations.id}`)
+            }
+          >
+            <FileText />
+            여행기 쓰기
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function FavoritePage() {
+  const { data: favorites = [], isLoading } = useQuery({
+    queryKey: favoritesQueryKey,
+    queryFn: async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+      if (!user) return [];
 
       const { data, error } = await query.eq('user_id', user.id);
 
       if (error) {
         console.error(error);
-      } else {
-        setFavorites(data);
+        return [];
       }
 
-      setLoading(false);
-    };
+      return data;
+    },
+  });
 
-    fetchFavorites();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return <p>불러오는 중...</p>;
   }
 
@@ -66,41 +110,7 @@ export default function FavoritePage() {
   return (
     <div className="grid gap-4 px-4 py-4 md:grid-cols-2 lg:grid-cols-3">
       {favorites.map((favorite) => (
-        <Card key={favorite.id}>
-          <CardContent className="flex items-center justify-between p-6">
-            <div>
-              <h3 className="mb-2 font-semibold">
-                {favorite.destinations.name}
-              </h3>
-
-              <div className="mb-3 flex flex-wrap gap-2">
-                <span className="inline-flex items-center rounded bg-blue-100 px-2 py-1 text-xs text-blue-700">
-                  <MapPin className="mr-1 h-3 w-3" />
-                  {favorite.destinations.province
-                    ? favorite.destinations.province
-                    : favorite.destinations.name}
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <Heart className="h-5 w-5 fill-red-500 text-red-500" />
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-4"
-                onClick={() =>
-                  // todo: 경로 어떻게 할지 좀 더 생각해보기
-                  router.push(
-                    `/trips/new?destination=${favorite.destinations.id}`,
-                  )
-                }
-              >
-                <FileText />
-                여행기 쓰기
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <FavoriteCard key={favorite.id} favorite={favorite} />
       ))}
     </div>
   );

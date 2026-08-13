@@ -4,7 +4,6 @@ import { useState } from 'react';
 // import Image from 'next/image';
 import { supabase } from '@/utils/supabase/client';
 import { cn } from '@/utils/cn';
-import { useUser } from '@/hooks/useUser';
 import { Destination } from '@/types/destination';
 import { Shuffle, Share2, Heart, MapPin } from 'lucide-react';
 import { Button } from '@/components/Button';
@@ -16,29 +15,14 @@ import {
   CardTitle,
 } from '@/components/Card';
 import { Checkbox } from '@/components/Checkbox';
+import { useFavorite } from '@/hooks/useFavorite';
 
 export default function RandomPick() {
-  const { user } = useUser();
-
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [excludeVisited, setExcludeVisited] = useState(false);
   const [result, setResult] = useState<Destination | null>(null);
-  const [isFavorite, setIsFavorite] = useState(false);
 
-  // 좋아요했던 여행지인지 아닌지 체크
-  const checkFavorite = async (destinationId: string) => {
-    if (!user) return;
-    if (!result) return;
-
-    const { data } = await supabase
-      .from('favorite_destinations')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('destination_id', destinationId)
-      .maybeSingle();
-
-    setIsFavorite(!!data);
-  };
+  const { isFavorite, toggleFavorite } = useFavorite(result?.id ?? null);
 
   // todo: 기존에 갔던 여행지 제외하기
   // 랜덤 여행지 뽑기
@@ -53,8 +37,6 @@ export default function RandomPick() {
 
       const destination = data[0];
       setResult(destination);
-      // 좋아요했던 여행지인지 아닌지 체크
-      await checkFavorite(destination.id);
     } catch (error) {
       console.error(error);
       alert('문제가 발생했습니다. 잠시 후 다시 시도해주세요');
@@ -73,50 +55,6 @@ export default function RandomPick() {
       // shareDestination(result.id, friendId, `${result.name} 같이 가요!`);
     });
     alert('여행지를 공유했습니다!');
-  };
-
-  // 좋아요 추가
-  const addFavorite = async () => {
-    // 로그인이 되어있지 않은 경우
-    if (!user) return;
-    if (!result) return;
-
-    const { error } = await supabase.from('favorite_destinations').insert({
-      user_id: user.id,
-      destination_id: result.id,
-    });
-
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    console.log('저장 완료');
-  };
-
-  const removeFavorite = async () => {
-    // 로그인이 되어있지 않은 경우
-    if (!user) return;
-    if (!result) return;
-
-    await supabase
-      .from('favorite_destinations')
-      .delete()
-      .eq('user_id', user.id)
-      .eq('destination_id', result.id);
-  };
-
-  // 좋아요 버튼
-  const handleFavorite = async () => {
-    // 좋아요 삭제
-    if (isFavorite) {
-      await removeFavorite();
-      setIsFavorite(false);
-    } else {
-      // 좋아요
-      await addFavorite();
-      setIsFavorite(true);
-    }
   };
 
   return (
@@ -203,7 +141,7 @@ export default function RandomPick() {
                           <Share2 className="mr-2 h-4 w-4" />
                           공유
                         </Button>
-                        <Button variant="outline" onClick={handleFavorite}>
+                        <Button variant="outline" onClick={toggleFavorite}>
                           <Heart
                             className={cn(
                               'h-4 w-4 transition-colors',
