@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/utils/supabase/client';
 import { useUser } from '@/hooks/useUser';
+import { throwIfError } from '@/utils/error';
 
 export const favoriteQueryKey = (destinationId: string | null) =>
   ['favorite', destinationId] as const;
@@ -11,12 +12,14 @@ export const favoritesQueryKey = ['favorites'] as const;
 async function fetchFavorite(destinationId: string | null, userId: string) {
   if (!destinationId) return false;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('favorite_destinations')
     .select('id')
     .eq('user_id', userId)
     .eq('destination_id', destinationId)
     .maybeSingle();
+
+  throwIfError(error);
 
   return !!data;
 }
@@ -47,7 +50,7 @@ export function useFavorite(destinationId: string | null) {
         user_id: user.id,
         destination_id: destinationId,
       });
-      if (error) console.error(error);
+      throwIfError(error);
     },
     onSuccess: invalidateFavorites,
   });
@@ -61,7 +64,7 @@ export function useFavorite(destinationId: string | null) {
         .delete()
         .eq('user_id', user.id)
         .eq('destination_id', destinationId);
-      if (error) console.error(error);
+      throwIfError(error);
     },
     onSuccess: invalidateFavorites,
   });

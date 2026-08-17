@@ -4,6 +4,7 @@ import { useState } from 'react';
 // import Image from 'next/image';
 import { supabase } from '@/utils/supabase/client';
 import { cn } from '@/utils/cn';
+import { getErrorMessage, throwIfError } from '@/utils/error';
 import { Destination } from '@/types/destination';
 import { Shuffle, Share2, Heart, MapPin } from 'lucide-react';
 import { Button } from '@/components/Button';
@@ -29,17 +30,13 @@ export default function RandomPick() {
   const handleRandomPick = async () => {
     try {
       const { data, error } = await supabase.rpc('random_destination');
-      if (error) {
-        console.error(error);
-        alert('문제가 발생했습니다. 잠시 후 다시 시도해주세요');
-        return;
-      }
+      throwIfError(error);
 
-      const destination = data[0];
+      const destination = data?.[0] ?? null;
       setResult(destination);
     } catch (error) {
       console.error(error);
-      alert('문제가 발생했습니다. 잠시 후 다시 시도해주세요');
+      alert(getErrorMessage(error));
     }
   };
 
@@ -54,7 +51,15 @@ export default function RandomPick() {
       console.log(friendId);
       // shareDestination(result.id, friendId, `${result.name} 같이 가요!`);
     });
-    alert('여행지를 공유했습니다!');
+  };
+
+  const handleToggleFavorite = async () => {
+    try {
+      await toggleFavorite();
+    } catch (error) {
+      console.error(error);
+      alert(getErrorMessage(error));
+    }
   };
 
   return (
@@ -141,7 +146,10 @@ export default function RandomPick() {
                           <Share2 className="mr-2 h-4 w-4" />
                           공유
                         </Button>
-                        <Button variant="outline" onClick={toggleFavorite}>
+                        <Button
+                          variant="outline"
+                          onClick={handleToggleFavorite}
+                        >
                           <Heart
                             className={cn(
                               'h-4 w-4 transition-colors',

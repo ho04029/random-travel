@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Heart, MapPin, FileText } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/utils/supabase/client';
+import { getErrorMessage, throwIfError } from '@/utils/error';
 import { Card, CardContent } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { cn } from '@/utils/cn';
@@ -27,6 +28,15 @@ function FavoriteCard({ favorite }: { favorite: Favorites[number] }) {
   const router = useRouter();
   const { isFavorite, toggleFavorite } = useFavorite(favorite.destinations.id);
 
+  const handleToggleFavorite = async () => {
+    try {
+      await toggleFavorite();
+    } catch (error) {
+      console.error(error);
+      alert(getErrorMessage(error));
+    }
+  };
+
   return (
     <Card>
       <CardContent className="flex items-center justify-between p-6">
@@ -47,7 +57,7 @@ function FavoriteCard({ favorite }: { favorite: Favorites[number] }) {
             variant="ghost"
             size="sm"
             aria-label="좋아요 취소"
-            onClick={toggleFavorite}
+            onClick={handleToggleFavorite}
           >
             <Heart
               className={cn(
@@ -75,7 +85,7 @@ function FavoriteCard({ favorite }: { favorite: Favorites[number] }) {
 }
 
 export default function FavoritePage() {
-  const { data: favorites = [], isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: favoritesQueryKey,
     queryFn: async () => {
       const {
@@ -86,17 +96,24 @@ export default function FavoritePage() {
 
       const { data, error } = await query.eq('user_id', user.id);
 
-      if (error) {
-        console.error(error);
-        return [];
-      }
+      throwIfError(error);
 
       return data;
     },
   });
 
+  const favorites = data ?? [];
+
   if (isLoading) {
     return <p>불러오는 중...</p>;
+  }
+
+  if (isError) {
+    return (
+      <div className="text-muted-foreground flex h-80 items-center justify-center">
+        {getErrorMessage(error)}
+      </div>
+    );
   }
 
   if (favorites.length === 0) {

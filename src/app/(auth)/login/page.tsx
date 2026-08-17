@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/client';
+import { getErrorMessage, throwIfError } from '@/utils/error';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Label } from '@/components/Label';
@@ -22,29 +23,17 @@ export default function Login() {
       return;
     }
 
-    // 로그인
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      throwIfError(error);
 
-      if (error) {
-        console.error(error);
-        if (error.code === 'invalid_credentials') {
-          alert('이메일 또는 비밀번호가 올바르지 않습니다');
-        } else {
-          alert('로그인 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요');
-        }
-        return;
-      }
-      if (data.user) {
-        alert('로그인에 성공하셨습니다');
-        router.replace('/');
-      }
+      if (data.user) router.replace('/');
     } catch (err) {
       console.error(err);
-      alert('로그인 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요');
+      alert(getErrorMessage(err));
     }
   };
 

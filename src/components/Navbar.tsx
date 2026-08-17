@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
+import { cn } from '../utils/cn';
+import { getErrorMessage } from '@/utils/error';
 import {
   MapPin,
   Home,
@@ -16,7 +18,6 @@ import {
   Menu,
   X,
 } from 'lucide-react';
-import { cn } from '../utils/cn';
 import { Button, buttonVariants } from './Button';
 import { useUser } from '@/hooks/useUser';
 
@@ -168,8 +169,13 @@ export function Navbar() {
   }, []);
 
   const handleSignOut = async () => {
-    await signOut();
-    router.refresh();
+    try {
+      await signOut();
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      alert(getErrorMessage(error));
+    }
   };
 
   return (

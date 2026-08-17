@@ -2,11 +2,13 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/utils/supabase/client';
+import { throwIfError } from '@/utils/error';
 
 export const userQueryKey = ['user'] as const;
 
 async function fetchCurrentUser() {
-  const { data } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
+  throwIfError(error);
   return data.user ?? null;
 }
 

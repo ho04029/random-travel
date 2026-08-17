@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/client';
+import { getErrorMessage, throwIfError } from '@/utils/error';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
@@ -35,7 +36,6 @@ export default function Signup() {
       return;
     }
 
-    // 회원가입 로직
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -47,19 +47,12 @@ export default function Signup() {
           },
         },
       });
+      throwIfError(error);
 
-      if (error) {
-        console.error(error);
-        alert('회원가입 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요');
-        return;
-      }
-      if (data.user) {
-        alert('회원가입에 성공하셨습니다');
-        router.replace('/');
-      }
+      if (data.user) router.replace('/');
     } catch (err) {
       console.error(err);
-      alert('회원가입 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요');
+      alert(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
