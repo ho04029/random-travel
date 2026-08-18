@@ -25,9 +25,15 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser();
+    user = currentUser;
+  } catch (error) {
+    console.error(error);
+  }
 
   // 비로그인 상태에서 보호된 경로 접근 시 리다이렉트
   const protectedPaths = ['/favorite'];
