@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { MapPin, Home } from 'lucide-react';
-import { Button } from '../components/Button';
-import { Card, CardContent } from '../components/Card';
+import { Button } from '@/components/Button';
+import { Card, CardContent } from '@/components/Card';
 
 export default function NotFound() {
   const router = useRouter();

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
-import { cn } from '../utils/cn';
+import { cn } from '@/utils/cn';
 import { getErrorMessage } from '@/utils/error';
 import {
   MapPin,
