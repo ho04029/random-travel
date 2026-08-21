@@ -2,28 +2,37 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, Star } from 'lucide-react';
+import Link from 'next/link';
+import { useCreateTrip } from '@/hooks/useCreateTrip';
+import { Star, ArrowLeft } from 'lucide-react';
 
 export default function TravelLogCreatePage() {
   const router = useRouter();
+  const { createTrip } = useCreateTrip();
   const [formData, setFormData] = useState({
     title: '',
-    destination: '',
-    date: '',
+    destinationIds: [] as string[],
+    startDate: '',
+    endDate: '',
     content: '',
     rating: 0,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Supabase 연결
-    console.log('Submitted:', formData);
-    router.push('/');
+    createTrip(formData);
   };
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="p-6">
+        <Link
+          href="/trips"
+          className="mb-4 inline-flex items-center gap-2 font-medium text-blue-600 hover:text-blue-700"
+        >
+          <ArrowLeft className="size-4" />
+          여행기 목록으로
+        </Link>
         <h1 className="text-2xl font-bold text-gray-900">여행기 작성</h1>
       </div>
 
@@ -56,7 +65,7 @@ export default function TravelLogCreatePage() {
             <label className="mb-2 block font-semibold text-gray-900">
               여행지 <span className="text-red-500">*</span>
             </label>
-            <select
+            {/* <select
               value={formData.destination}
               onChange={(e) =>
                 setFormData({ ...formData, destination: e.target.value })
@@ -65,12 +74,12 @@ export default function TravelLogCreatePage() {
               required
             >
               <option value="">선택하세요</option>
-              {/* {destinations.map((dest) => (
+              {destinations.map((dest) => (
                 <option key={dest} value={dest}>
                   {dest}
                 </option>
-              ))} */}
-            </select>
+              ))}
+            </select> */}
           </div>
 
           {/* 방문일 */}
@@ -80,9 +89,19 @@ export default function TravelLogCreatePage() {
             </label>
             <input
               type="date"
-              value={formData.date}
+              value={formData.startDate}
               onChange={(e) =>
-                setFormData({ ...formData, date: e.target.value })
+                setFormData({ ...formData, startDate: e.target.value })
+              }
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              required
+            />
+            -
+            <input
+              type="date"
+              value={formData.endDate}
+              onChange={(e) =>
+                setFormData({ ...formData, endDate: e.target.value })
               }
               className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
@@ -113,23 +132,9 @@ export default function TravelLogCreatePage() {
           </div>
         </div>
 
-        {/* 사진 */}
-        <div>
-          <label className="mb-2 block font-semibold text-gray-900">
-            사진 업로드
-          </label>
-          <div className="cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-8 text-center transition-colors hover:border-blue-400">
-            <Upload className="mx-auto mb-3 size-12 text-gray-400" />
-            <p className="mb-1 text-gray-600">클릭하여 사진을 업로드하세요</p>
-            <p className="text-sm text-gray-500">또는 파일을 드래그 앤 드롭</p>
-          </div>
-        </div>
-
         {/* 후기 description */}
         <div>
-          <label className="mb-2 block font-semibold text-gray-900">
-            후기 <span className="text-red-500">*</span>
-          </label>
+          <label className="mb-2 block font-semibold text-gray-900">후기</label>
           <textarea
             value={formData.content}
             onChange={(e) =>
