@@ -67,6 +67,78 @@ export type Database = {
           },
         ];
       };
+      trip_record_destinations: {
+        Row: {
+          created_at: string;
+          destination_id: string;
+          id: string;
+          trip_record_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          destination_id: string;
+          id?: string;
+          trip_record_id: string;
+        };
+        Update: {
+          created_at?: string;
+          destination_id?: string;
+          id?: string;
+          trip_record_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'trip_record_destinations_destination_id_fkey';
+            columns: ['destination_id'];
+            isOneToOne: false;
+            referencedRelation: 'destinations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'trip_record_destinations_trip_record_id_fkey';
+            columns: ['trip_record_id'];
+            isOneToOne: false;
+            referencedRelation: 'trip_records';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      trip_records: {
+        Row: {
+          content: string | null;
+          created_at: string;
+          end_date: string | null;
+          id: string;
+          rating: number | null;
+          start_date: string | null;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          content?: string | null;
+          created_at?: string;
+          end_date?: string | null;
+          id?: string;
+          rating?: number | null;
+          start_date?: string | null;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          content?: string | null;
+          created_at?: string;
+          end_date?: string | null;
+          id?: string;
+          rating?: number | null;
+          start_date?: string | null;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user: {
         Row: {
           created_at: string;
@@ -93,6 +165,17 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      create_trip_record: {
+        Args: {
+          p_content: string;
+          p_destination_ids: string[];
+          p_end_date: string;
+          p_rating: number;
+          p_start_date: string;
+          p_title: string;
+        };
+        Returns: string;
+      };
       random_destination: {
         Args: never;
         Returns: {
