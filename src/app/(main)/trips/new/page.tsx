@@ -1,26 +1,41 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCreateTrip } from '@/hooks/useCreateTrip';
+import { useDestinations } from '@/hooks/useDestinations';
+import { DestinationCombobox } from '@/components/DestinationCombobox';
 import { Star, ArrowLeft } from 'lucide-react';
 
 export default function TravelLogCreatePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { createTrip } = useCreateTrip();
-  const [formData, setFormData] = useState({
+  const { destinations, isLoading: isLoadingDestinations } = useDestinations();
+  const [formData, setFormData] = useState(() => ({
     title: '',
-    destinationIds: [] as string[],
+    destinationIds: searchParams.get('destination')
+      ? [searchParams.get('destination')!]
+      : [],
     startDate: '',
     endDate: '',
     content: '',
     rating: 0,
-  });
+  }));
+
+  // 유효하지 않은 destination Id 제거
+  const destinationIds = formData.destinationIds.filter((id) =>
+    destinations.some((destination) => destination.id === id),
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createTrip(formData);
+    if (destinationIds.length === 0) {
+      alert('여행지를 선택해주세요.');
+      return;
+    }
+    createTrip({ ...formData, destinationIds });
   };
 
   return (
@@ -59,27 +74,19 @@ export default function TravelLogCreatePage() {
         </div>
 
         {/* 여행지 */}
-        {/* TODO 여행지 선택 어떤 식으로 할지 */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-2 block font-semibold text-gray-900">
               여행지 <span className="text-red-500">*</span>
             </label>
-            {/* <select
-              value={formData.destination}
-              onChange={(e) =>
-                setFormData({ ...formData, destination: e.target.value })
+            <DestinationCombobox
+              destinations={destinations}
+              value={destinationIds}
+              onChange={(ids) =>
+                setFormData({ ...formData, destinationIds: ids })
               }
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              required
-            >
-              <option value="">선택하세요</option>
-              {destinations.map((dest) => (
-                <option key={dest} value={dest}>
-                  {dest}
-                </option>
-              ))}
-            </select> */}
+              isLoading={isLoadingDestinations}
+            />
           </div>
 
           {/* 방문일 */}
@@ -177,7 +184,7 @@ export default function TravelLogCreatePage() {
         <div className="flex gap-3 pt-4">
           <button
             type="button"
-            onClick={() => router.back}
+            onClick={() => router.back()}
             className="flex-1 rounded-lg border border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
           >
             취소
