@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCreateTrip } from '@/hooks/useCreateTrip';
 import { useDestinations } from '@/hooks/useDestinations';
+import { getToday } from '@/utils/getToday';
 import { DestinationCombobox } from '@/components/DestinationCombobox';
 import { Star, ArrowLeft } from 'lucide-react';
 
@@ -18,8 +19,8 @@ export default function TravelLogCreatePage() {
     destinationIds: searchParams.get('destination')
       ? [searchParams.get('destination')!]
       : [],
-    startDate: '',
-    endDate: '',
+    startDate: getToday(),
+    endDate: getToday(),
     content: '',
     rating: 0,
   }));
@@ -89,53 +90,57 @@ export default function TravelLogCreatePage() {
             />
           </div>
 
-          {/* 방문일 */}
+          {/* 별점 */}
           <div>
             <label className="mb-2 block font-semibold text-gray-900">
-              방문일 <span className="text-red-500">*</span>
+              별점
             </label>
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, rating: star })}
+                  className="transition-transform hover:scale-110"
+                >
+                  <Star
+                    className={`size-10 ${
+                      star <= formData.rating
+                        ? 'fill-yellow-400 text-yellow-400'
+                        : 'text-gray-300'
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 방문일 */}
+        <div>
+          <label className="mb-2 block font-semibold text-gray-900">
+            방문일 <span className="text-red-500">*</span>
+          </label>
+          <div className="flex items-center gap-2">
             <input
               type="date"
               value={formData.startDate}
               onChange={(e) =>
                 setFormData({ ...formData, startDate: e.target.value })
               }
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             />
-            -
+            <span className="text-gray-400">-</span>
             <input
               type="date"
               value={formData.endDate}
               onChange={(e) =>
                 setFormData({ ...formData, endDate: e.target.value })
               }
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             />
-          </div>
-        </div>
-
-        {/* 별점 */}
-        <div>
-          <label className="mb-2 block font-semibold text-gray-900">별점</label>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                onClick={() => setFormData({ ...formData, rating: star })}
-                className="transition-transform hover:scale-110"
-              >
-                <Star
-                  className={`size-10 ${
-                    star <= formData.rating
-                      ? 'fill-yellow-400 text-yellow-400'
-                      : 'text-gray-300'
-                  }`}
-                />
-              </button>
-            ))}
           </div>
         </div>
 
