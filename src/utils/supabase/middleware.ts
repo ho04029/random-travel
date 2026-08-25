@@ -36,7 +36,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // 비로그인 상태에서 보호된 경로 접근 시 리다이렉트
-  const protectedPaths = ['/favorite'];
+  const protectedPaths = ['/favorite', 'trips/new'];
   const isProtected = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path),
   );
