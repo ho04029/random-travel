@@ -125,9 +125,15 @@ export default function TravelLogCreatePage() {
             <input
               type="date"
               value={formData.startDate}
-              onChange={(e) =>
-                setFormData({ ...formData, startDate: e.target.value })
-              }
+              onChange={(e) => {
+                const newStart = e.target.value;
+                setFormData({
+                  ...formData,
+                  startDate: newStart,
+                  endDate:
+                    newStart > formData.endDate ? newStart : formData.endDate,
+                });
+              }}
               className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             />
@@ -135,6 +141,7 @@ export default function TravelLogCreatePage() {
             <input
               type="date"
               value={formData.endDate}
+              min={formData.startDate}
               onChange={(e) =>
                 setFormData({ ...formData, endDate: e.target.value })
               }
