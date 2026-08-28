@@ -22,5 +22,8 @@ export type TripWithDestinations = {
   user_id: string;
   created_at: string;
   updated_at: string;
-  trip_record_destinations: { destination_id: string }[];
+  trip_record_destinations: {
+    destination_id: string;
+    destinations: { name: string; province: string | null } | null;
+  }[];
 };

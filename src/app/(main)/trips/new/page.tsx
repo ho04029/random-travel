@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useCreateTrip } from '@/hooks/useCreateTrip';
+import { useCreateTrip } from '@/hooks/useTripLogs';
 import { useDestinations } from '@/hooks/useDestinations';
+import { getErrorMessage } from '@/utils/error';
 import { getToday } from '@/utils/getToday';
 import { DestinationCombobox } from '@/components/DestinationCombobox';
 import { Star, ArrowLeft } from 'lucide-react';
@@ -12,7 +13,10 @@ import { Star, ArrowLeft } from 'lucide-react';
 export default function TravelLogCreatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { createTrip } = useCreateTrip();
+  const { createTrip } = useCreateTrip({
+    onSuccess: () => router.push('/trips'),
+    onError: (error) => alert(getErrorMessage(error)),
+  });
   const { destinations, isLoading: isLoadingDestinations } = useDestinations();
   const [formData, setFormData] = useState(() => ({
     title: '',
@@ -32,10 +36,24 @@ export default function TravelLogCreatePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (destinationIds.length === 0) {
-      alert('여행지를 선택해주세요.');
+
+    const validations = [
+      { check: !formData.title.trim(), message: '제목을 입력해주세요.' },
+      { check: destinationIds.length === 0, message: '여행지를 선택해주세요.' },
+      { check: !formData.startDate, message: '시작일을 선택해주세요.' },
+      { check: !formData.endDate, message: '종료일을 선택해주세요.' },
+      {
+        check: formData.endDate < formData.startDate,
+        message: '종료일은 시작일보다 이후여야 합니다.',
+      },
+    ];
+
+    const error = validations.find((v) => v.check);
+    if (error) {
+      alert(error.message);
       return;
     }
+
     createTrip({ ...formData, destinationIds });
   };
 

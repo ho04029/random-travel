@@ -6,8 +6,10 @@ import { throwIfError } from '@/utils/error';
 import { useUser } from '@/hooks/useUser';
 import { TripFormData, TripWithDestinations } from '@/types/trip';
 
-export const tripsQueryKey = ['trips'] as const;
+export const tripsQueryKey = (sortBy?: string) => ['trips', sortBy] as const;
 export const tripQueryKey = (id: string | null) => ['trip', id] as const;
+
+export type TripSortOption = 'latest' | 'oldest';
 
 type TripCallbacks = {
   onSuccess?: () => void;
@@ -15,19 +17,29 @@ type TripCallbacks = {
 };
 
 // 여행기 목록 조회
-export function useTripLogs() {
+export function useTripLogs(sortBy: TripSortOption = 'latest') {
   const { user } = useUser();
 
   return useQuery({
-    queryKey: tripsQueryKey,
+    queryKey: tripsQueryKey(sortBy),
     queryFn: async (): Promise<TripWithDestinations[]> => {
       if (!user) return [];
 
-      const { data, error } = await supabase
+      const query = supabase
         .from('trip_records')
-        .select('*, trip_record_destinations(destination_id)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .select(
+          '*, trip_record_destinations(destination_id, destinations(name, province))',
+        )
+        .eq('user_id', user.id);
+
+      const { data, error } =
+        sortBy === 'latest'
+          ? await query
+              .order('start_date', { ascending: false, nullsFirst: false })
+              .order('created_at', { ascending: false })
+          : await query
+              .order('start_date', { ascending: true, nullsFirst: true })
+              .order('created_at', { ascending: true });
 
       throwIfError(error);
 
@@ -48,7 +60,9 @@ export function useTripLog(id: string | null) {
 
       const { data, error } = await supabase
         .from('trip_records')
-        .select('*, trip_record_destinations(destination_id)')
+        .select(
+          '*, trip_record_destinations(destination_id, destinations(name, province))',
+        )
         .eq('id', id)
         .eq('user_id', user.id)
         .single();
@@ -82,7 +96,7 @@ export function useCreateTrip({ onSuccess, onError }: TripCallbacks = {}) {
       throwIfError(error);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tripsQueryKey });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
       onSuccess?.();
     },
     onError,
@@ -144,7 +158,7 @@ export function useUpdateTrip({ onSuccess, onError }: TripCallbacks = {}) {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tripsQueryKey });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
       queryClient.invalidateQueries({ queryKey: tripQueryKey(null) });
       onSuccess?.();
     },
@@ -184,7 +198,7 @@ export function useDeleteTrip({ onSuccess, onError }: TripCallbacks = {}) {
       throwIfError(error);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tripsQueryKey });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
       onSuccess?.();
     },
     onError,
