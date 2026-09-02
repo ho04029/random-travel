@@ -109,7 +109,7 @@ export type Database = {
           created_at: string;
           end_date: string | null;
           id: string;
-          rating: number | null;
+          rating: number;
           start_date: string | null;
           title: string;
           updated_at: string;
@@ -120,7 +120,7 @@ export type Database = {
           created_at?: string;
           end_date?: string | null;
           id?: string;
-          rating?: number | null;
+          rating?: number;
           start_date?: string | null;
           title: string;
           updated_at?: string;
@@ -131,7 +131,7 @@ export type Database = {
           created_at?: string;
           end_date?: string | null;
           id?: string;
-          rating?: number | null;
+          rating?: number;
           start_date?: string | null;
           title?: string;
           updated_at?: string;
