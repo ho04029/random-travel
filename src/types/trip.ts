@@ -18,7 +18,7 @@ export type TripWithDestinations = {
   content: string | null;
   start_date: string | null;
   end_date: string | null;
-  rating: number | null;
+  rating: number;
   user_id: string;
   created_at: string;
   updated_at: string;
