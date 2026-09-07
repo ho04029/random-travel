@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 // import Image from 'next/image';
 import { useTripLogs } from '@/hooks/useTripLogs';
-import { TripWithDestinations } from '@/types/trip';
+import { formatDateRange } from '@/utils/formatDate';
+import { getDestinationNames } from '@/utils/trip';
 import { Plus, MapPin, Calendar, Star, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/Card';
 import { Button } from '@/components/Button';
@@ -20,19 +21,6 @@ export default function TripLogsPage() {
   const router = useRouter();
   const [sortBy, setSortBy] = useState<'latest' | 'oldest'>('latest');
   const { data: trips = [], isLoading, isError } = useTripLogs(sortBy);
-
-  const formatDateRange = (start: string | null, end: string | null) => {
-    if (!start) return null;
-    if (!end) return start;
-    return `${start} ~ ${end}`;
-  };
-
-  const getDestinationNames = (trip: TripWithDestinations) => {
-    return trip.trip_record_destinations
-      .map((td) => td.destinations?.name)
-      .filter(Boolean)
-      .join(', ');
-  };
 
   if (isLoading) {
     return (

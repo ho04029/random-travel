@@ -2,8 +2,10 @@
 
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useTripLog } from '@/hooks/useTripLogs';
-import { TripWithDestinations } from '@/types/trip';
+import { useTripLog, useDeleteTrip } from '@/hooks/useTripLogs';
+import { getErrorMessage } from '@/utils/error';
+import { formatDateRange } from '@/utils/formatDate';
+import { getDestinationNames } from '@/utils/trip';
 import { MapPin, Calendar, Star, Loader2, Edit, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/Card';
 import { Button } from '@/components/Button';
@@ -12,6 +14,10 @@ export default function TripDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const { data: trip, isLoading, isError } = useTripLog(id);
+  const { deleteTrip, isPending } = useDeleteTrip({
+    onSuccess: () => router.push('/trips'),
+    onError: (error) => alert(getErrorMessage(error)),
+  });
 
   if (isLoading) {
     return (
@@ -38,19 +44,6 @@ export default function TripDetailPage() {
     );
   }
 
-  const formatDateRange = (start: string | null, end: string | null) => {
-    if (!start) return null;
-    if (!end) return start;
-    return `${start} ~ ${end}`;
-  };
-
-  const getDestinationNames = (trip: TripWithDestinations) => {
-    return trip.trip_record_destinations
-      .map((td) => td.destinations?.name)
-      .filter(Boolean)
-      .join(', ');
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mx-auto max-w-4xl">
@@ -60,14 +53,27 @@ export default function TripDetailPage() {
             ← 목록으로
           </Button>
           <div className="flex gap-2">
-            {/* TODO: 경로 수정하기 */}
-            <Button variant="outline" onClick={() => router.push('/trips')}>
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/trips/${id}/edit`)}
+            >
               <Edit className="mr-2 h-4 w-4" />
               수정
             </Button>
-            {/* TODO: 삭제 */}
-            <Button variant="outline" onClick={() => {}}>
-              <Trash2 className="mr-2 h-4 w-4" />
+            <Button
+              variant="outline"
+              disabled={isPending}
+              onClick={() => {
+                if (window.confirm('정말 삭제하시겠습니까?')) {
+                  deleteTrip(id);
+                }
+              }}
+            >
+              {isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="mr-2 h-4 w-4" />
+              )}
               삭제
             </Button>
           </div>
