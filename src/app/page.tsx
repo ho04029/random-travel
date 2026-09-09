@@ -1,10 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { Shuffle, MapPin, Users, Calendar } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/Button';
+import { useTripLogs } from '@/hooks/useTripLogs';
 import {
   Card,
   CardHeader,
@@ -15,33 +15,7 @@ import {
 
 export default function Home() {
   const router = useRouter();
-
-  const trips = [
-    {
-      id: '1',
-      destinationId: '5',
-      destinationName: '강릉',
-      title: '커피 향 가득한 강릉 여행',
-      visitDate: '2026-05-15',
-      photos: [''],
-      content:
-        '강릉의 아름다운 바다와 맛있는 커피를 즐겼습니다. 경포대 해변에서 일출을 보고, 안목해변 커피거리를 따라 걸으며 여유로운 시간을 보냈어요.',
-      rating: 5,
-      friendIds: ['2'],
-    },
-    {
-      id: '2',
-      destinationId: '6',
-      destinationName: '전주',
-      title: '한옥마을과 맛집 투어',
-      visitDate: '2026-04-20',
-      photos: [''],
-      content:
-        '전주 한옥마을의 아름다운 풍경과 맛있는 비빔밥을 즐겼습니다. 전통 찻집에서 차를 마시며 한옥의 멋을 느꼈어요.',
-      rating: 5,
-      friendIds: ['2'],
-    },
-  ];
+  const { data: trips = [] } = useTripLogs();
 
   const travelGroups = [
     {
@@ -74,7 +48,11 @@ export default function Home() {
     },
   ];
 
-  const visitedDestinationIds = new Set(trips.map((t) => t.destinationId));
+  const visitedDestinationIds = new Set(
+    trips.flatMap((t) =>
+      t.trip_record_destinations.map((d) => d.destination_id),
+    ),
+  );
   const visitedCities = visitedDestinationIds.size;
 
   return (
@@ -155,22 +133,15 @@ export default function Home() {
                       className="flex cursor-pointer gap-4 rounded-lg p-2 transition-colors hover:bg-gray-50"
                       onClick={() => router.push(`/trips/${trip.id}`)}
                     >
-                      {trip.photos[0] ? (
-                        <Image
-                          src={trip.photos[0]}
-                          alt={trip.title}
-                          className="h-20 w-20 rounded-lg object-cover"
-                        />
-                      ) : (
-                        <div className="h-20 w-20 rounded-lg bg-gray-200"></div>
-                      )}
+                      <div className="h-20 w-20 rounded-lg bg-gray-200"></div>
                       <div className="min-w-0 flex-1">
                         <h4 className="truncate font-medium">{trip.title}</h4>
                         <p className="text-sm text-gray-600">
-                          {trip.destinationName}
+                          {trip.trip_record_destinations[0]?.destinations
+                            ?.name ?? ''}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {trip.visitDate}
+                          {trip.start_date}
                         </p>
                       </div>
                     </div>
