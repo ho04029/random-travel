@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/Card';
+import { supabase } from '@/utils/supabase/client';
 
 interface AuthContentProps {
   children: React.ReactNode;
@@ -41,7 +42,19 @@ export function AuthContent({
               <span className="bg-white px-2 text-gray-500">또는</span>
             </div>
           </div>
-          <Button variant="outline" className="mt-4 w-full" type="button">
+          <Button
+            variant="outline"
+            className="mt-4 w-full"
+            type="button"
+            onClick={async () => {
+              await supabase.auth.signInWithOAuth({
+                provider: 'kakao',
+                options: {
+                  redirectTo: `${window.location.origin}/auth/callback`,
+                },
+              });
+            }}
+          >
             카카오로 계속하기
           </Button>
         </div>
