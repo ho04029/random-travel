@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCreateTrip } from '@/hooks/useTripLogs';
 import { useDestinations } from '@/hooks/useDestinations';
@@ -7,7 +8,7 @@ import { getErrorMessage } from '@/utils/error';
 import { getToday } from '@/utils/getToday';
 import { TripForm } from '@/components/TripForm';
 
-export default function TravelLogCreatePage() {
+function TravelLogCreateForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { createTrip } = useCreateTrip({
@@ -34,5 +35,13 @@ export default function TravelLogCreatePage() {
       pageTitle="여행기 작성"
       onCancel={() => router.back()}
     />
+  );
+}
+
+export default function TravelLogCreatePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TravelLogCreateForm />
+    </Suspense>
   );
 }
