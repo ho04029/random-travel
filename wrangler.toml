@@ -1,4 +1,4 @@
-name = "랜덤여행기"
+name = "random-travel"
 main = ".open-next/worker.js"
 compatibility_date = "2026-09-16" # 배포 날짜 기준
 compatibility_flags = ["nodejs_compat"]
