@@ -85,8 +85,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{visitedCities}개</div>
-              {/* TODO: 전체 갯수 수정 */}
-              <p className="text-muted-foreground text-xs">전체 nn개 중</p>
+              <p className="text-muted-foreground text-xs">전체 75개 중</p>
             </CardContent>
           </Card>
 
