@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { useTripLog, useDeleteTrip } from '@/hooks/useTripLogs';
 import { getErrorMessage } from '@/utils/error';
@@ -13,7 +13,7 @@ import { Button } from '@/components/Button';
 export default function TripDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const { data: trip, isLoading, isError } = useTripLog(id);
+  const { data: trip, isLoading, isError, isSuccess } = useTripLog(id);
   const { deleteTrip, isPending } = useDeleteTrip({
     onSuccess: () => router.push('/trips'),
     onError: (error) => alert(getErrorMessage(error)),
@@ -25,6 +25,10 @@ export default function TripDetailPage() {
         <Loader2 className="size-8 animate-spin text-blue-500" />
       </div>
     );
+  }
+
+  if (isSuccess && !trip) {
+    notFound();
   }
 
   if (isError || !trip) {

@@ -65,7 +65,7 @@ export function useTripLog(id: string | null) {
         )
         .eq('id', id)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       throwIfError(error);
 
