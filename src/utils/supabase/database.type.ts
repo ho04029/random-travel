@@ -177,7 +177,7 @@ export type Database = {
         Returns: string;
       };
       random_destination: {
-        Args: never;
+        Args: { p_exclude_visited?: boolean };
         Returns: {
           id: string;
           name: string;
