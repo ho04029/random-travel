@@ -17,6 +17,7 @@ import {
 } from '@/components/Card';
 import { Checkbox } from '@/components/Checkbox';
 import { useFavorite } from '@/hooks/useFavorite';
+import { useUser } from '@/hooks/useUser';
 
 export default function RandomPick() {
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
@@ -24,6 +25,19 @@ export default function RandomPick() {
   const [result, setResult] = useState<Destination | null>(null);
 
   const { isFavorite, toggleFavorite } = useFavorite(result?.id ?? null);
+  const { user, loading: isUserLoading } = useUser();
+
+  // 기존에 갔던 여행지 제외하기 체크박스
+  const handleToggleExcludeVisited = (checked: boolean) => {
+    if (isUserLoading) return;
+
+    if (!user) {
+      alert('로그인이 필요한 기능입니다.');
+      return;
+    }
+
+    setExcludeVisited(!!checked);
+  };
 
   // todo: 기존에 갔던 여행지 제외하기
   // 랜덤 여행지 뽑기
@@ -85,7 +99,7 @@ export default function RandomPick() {
                   <Checkbox
                     id="exclude"
                     checked={excludeVisited}
-                    onCheckedChange={(checked) => setExcludeVisited(!!checked)}
+                    onCheckedChange={handleToggleExcludeVisited}
                   />
                   <label
                     htmlFor="exclude"
