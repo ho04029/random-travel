@@ -39,14 +39,21 @@ export default function RandomPick() {
     setExcludeVisited(!!checked);
   };
 
-  // todo: 기존에 갔던 여행지 제외하기
   // 랜덤 여행지 뽑기
   const handleRandomPick = async () => {
     try {
-      const { data, error } = await supabase.rpc('random_destination');
+      const { data, error } = await supabase.rpc('random_destination', {
+        p_exclude_visited: excludeVisited,
+      });
       throwIfError(error);
 
       const destination = data?.[0] ?? null;
+
+      if (!destination) {
+        alert('모든 여행지를 다녀왔습니다. 제외 옵션을 해제해주세요.');
+        return;
+      }
+
       setResult(destination);
     } catch (error) {
       console.error(error);
