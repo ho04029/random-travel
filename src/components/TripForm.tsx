@@ -4,6 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Loader2, Star } from 'lucide-react';
 import { DestinationCombobox } from '@/components/DestinationCombobox';
+import { Button } from '@/components/Button';
+import { Input } from '@/components/Input';
+import { Label } from '@/components/Label';
 import { TripFormData } from '@/types/trip';
 import { Destination } from '@/types/destination';
 
@@ -76,17 +79,17 @@ export function TripForm({
       >
         {/* 제목 */}
         <div>
-          <label className="mb-2 block font-semibold text-gray-900">
+          <Label htmlFor="title" className="mb-2 font-semibold text-gray-900">
             제목 <span className="text-red-500">*</span>
-          </label>
-          <input
+          </Label>
+          <Input
+            id="title"
             type="text"
             value={formData.title}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
             placeholder="여행기 제목을 입력하세요"
-            className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             required
           />
         </div>
@@ -94,9 +97,9 @@ export function TripForm({
         {/* 여행지 + 별점 */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-2 block font-semibold text-gray-900">
+            <Label className="mb-2 font-semibold text-gray-900">
               여행지 <span className="text-red-500">*</span>
-            </label>
+            </Label>
             <DestinationCombobox
               destinations={destinations}
               value={destinationIds}
@@ -108,9 +111,7 @@ export function TripForm({
           </div>
 
           <div>
-            <label className="mb-2 block font-semibold text-gray-900">
-              별점
-            </label>
+            <Label className="mb-2 font-semibold text-gray-900">별점</Label>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -134,11 +135,12 @@ export function TripForm({
 
         {/* 방문일 */}
         <div>
-          <label className="mb-2 block font-semibold text-gray-900">
+          <Label className="mb-2 font-semibold text-gray-900">
             방문일 <span className="text-red-500">*</span>
-          </label>
+          </Label>
           <div className="flex items-center gap-2">
-            <input
+            <Input
+              id="startDate"
               type="date"
               value={formData.startDate}
               onChange={(e) => {
@@ -150,18 +152,19 @@ export function TripForm({
                     newStart > formData.endDate ? newStart : formData.endDate,
                 });
               }}
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="flex-1"
               required
             />
             <span className="text-gray-400">-</span>
-            <input
+            <Input
+              id="endDate"
               type="date"
               value={formData.endDate}
               min={formData.startDate}
               onChange={(e) =>
                 setFormData({ ...formData, endDate: e.target.value })
               }
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="flex-1"
               required
             />
           </div>
@@ -169,8 +172,11 @@ export function TripForm({
 
         {/* 후기 */}
         <div>
-          <label className="mb-2 block font-semibold text-gray-900">후기</label>
+          <Label htmlFor="content" className="mb-2 font-semibold text-gray-900">
+            후기
+          </Label>
           <textarea
+            id="content"
             value={formData.content}
             onChange={(e) =>
               setFormData({ ...formData, content: e.target.value })
@@ -184,21 +190,18 @@ export function TripForm({
 
         {/* 버튼 영역 */}
         <div className="flex gap-3 pt-4">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+            className="flex-1"
           >
             취소
-          </button>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
-          >
+          </Button>
+          <Button type="submit" disabled={isPending} className="flex-1">
             {isPending && <Loader2 className="size-5 animate-spin" />}
             {submitLabel}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
