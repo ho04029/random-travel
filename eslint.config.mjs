@@ -14,7 +14,7 @@ const eslintConfig = defineConfig([
         {
           patterns: [
             {
-              group: ['../*'],
+              group: ['..', '../**'],
               message: '상대 경로 대신 절대 경로(@/...)를 사용하세요.',
             },
           ],
