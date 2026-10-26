@@ -55,6 +55,11 @@ export default function RandomPick() {
       }
 
       setResult(destination);
+
+      // url 업데이트
+      const url = new URL(window.location.href);
+      url.searchParams.set('destinationId', String(destination.id));
+      window.history.replaceState(window.history.state, '', url);
     } catch (error) {
       console.error(error);
       alert(getErrorMessage(error));
@@ -116,7 +121,11 @@ export default function RandomPick() {
                   </label>
                 </div>
 
-                <Button className="w-full" size="lg" onClick={handleRandomPick}>
+                <Button
+                  className="w-full cursor-pointer"
+                  size="lg"
+                  onClick={handleRandomPick}
+                >
                   <Shuffle className="mr-2 h-5 w-5" />
                   랜덤 여행지 뽑기
                 </Button>
@@ -154,7 +163,7 @@ export default function RandomPick() {
                         <Button
                           onClick={handleRandomPick}
                           variant="outline"
-                          className="flex-1"
+                          className="flex-1 cursor-pointer"
                         >
                           <Shuffle className="mr-2 h-4 w-4" />
                           다시 뽑기
