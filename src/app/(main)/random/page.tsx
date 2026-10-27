@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // import Image from 'next/image';
 import { supabase } from '@/utils/supabase/client';
 import { cn } from '@/utils/cn';
@@ -87,6 +87,37 @@ export default function RandomPick() {
       alert(getErrorMessage(error));
     }
   };
+
+  // 처음 접속 했을 때 url에 destinationId가 있다면 해당 여행지 화면에 띄우기
+  useEffect(() => {
+    const loadSharedDestination = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const destinationId = params.get('destinationId');
+
+      // 공유 링크가 아니라면 기존 화면을 유지
+      if (!destinationId) return;
+
+      const { data, error } = await supabase
+        .from('destinations')
+        .select('*')
+        .eq('id', destinationId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('공유 여행지 조회 실패:', error);
+        return;
+      }
+
+      if (!data) {
+        console.error('해당 여행지를 찾을 수 없습니다.');
+        return;
+      }
+
+      setResult(data);
+    };
+
+    void loadSharedDestination();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
