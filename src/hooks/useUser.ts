@@ -24,6 +24,10 @@ export function useUser() {
   const signOut = async () => {
     await supabase.auth.signOut();
     queryClient.setQueryData(userQueryKey, null);
+
+    // 사용자 스코프 캐시 제거.
+    queryClient.removeQueries({ queryKey: ['trip'] });
+    queryClient.removeQueries({ queryKey: ['favorite'] });
   };
 
   return { user, loading, signOut };
