@@ -20,7 +20,6 @@ import { useFavorite } from '@/hooks/useFavorite';
 import { useUser } from '@/hooks/useUser';
 
 export default function RandomPick() {
-  const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
   const [excludeVisited, setExcludeVisited] = useState(false);
   const [result, setResult] = useState<Destination | null>(null);
 
@@ -66,17 +65,35 @@ export default function RandomPick() {
     }
   };
 
-  // todo: 친구에게 공유 기능 만들기
-  const handleShare = () => {
+  // 공유하기
+  const handleShare = async () => {
     if (!result) return;
-    if (selectedFriendIds.length === 0) {
-      alert('공유할 친구를 선택해주세요');
-      return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('destinationId', String(result.id));
+    const shareUrl = url.toString();
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `랜덤 여행지 - ${result.name}`,
+          text: `${result.name} 같이 가요!`,
+          url: shareUrl,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareUrl);
+      alert('링크가 클립보드에 복사되었습니다.');
+    } catch (error) {
+      console.error(error);
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('링크가 클립보드에 복사되었습니다.');
+      } catch {
+        alert(shareUrl);
+      }
     }
-    selectedFriendIds.forEach((friendId) => {
-      console.log(friendId);
-      // shareDestination(result.id, friendId, `${result.name} 같이 가요!`);
-    });
   };
 
   const handleToggleFavorite = async () => {
@@ -199,11 +216,7 @@ export default function RandomPick() {
                           <Shuffle className="mr-2 h-4 w-4" />
                           다시 뽑기
                         </Button>
-                        <Button
-                          onClick={handleShare}
-                          variant="outline"
-                          disabled={selectedFriendIds.length === 0}
-                        >
+                        <Button onClick={handleShare} variant="outline">
                           <Share2 className="mr-2 h-4 w-4" />
                           공유
                         </Button>
