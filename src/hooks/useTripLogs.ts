@@ -1,15 +1,28 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { supabase } from '@/utils/supabase/client';
 import { throwIfError } from '@/utils/error';
 import { useUser } from '@/hooks/useUser';
 import { TripFormData, TripWithDestinations } from '@/types/trip';
 
-export const tripsQueryKey = (sortBy?: string) => ['trips', sortBy] as const;
-export const tripQueryKey = (id: string | null) => ['trip', id] as const;
-
 export type TripSortOption = 'latest' | 'oldest';
+
+//  Query Key factories
+export const tripKeys = {
+  all: ['trip'] as const,
+  lists: () => [...tripKeys.all, 'list'] as const,
+  list: (userId: string, sortBy: TripSortOption) =>
+    [...tripKeys.lists(), userId, sortBy] as const,
+  details: () => [...tripKeys.all, 'detail'] as const,
+  detail: (userId: string, id: string) =>
+    [...tripKeys.details(), userId, id] as const,
+};
 
 type TripCallbacks = {
   onSuccess?: () => void;
@@ -21,7 +34,7 @@ export function useTripLogs(sortBy: TripSortOption = 'latest') {
   const { user } = useUser();
 
   return useQuery({
-    queryKey: tripsQueryKey(sortBy),
+    queryKey: tripKeys.list(user?.id ?? '', sortBy),
     queryFn: async (): Promise<TripWithDestinations[]> => {
       if (!user) return [];
 
@@ -46,6 +59,7 @@ export function useTripLogs(sortBy: TripSortOption = 'latest') {
       return data ?? [];
     },
     enabled: !!user,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -54,7 +68,7 @@ export function useTripLog(id: string | null) {
   const { user } = useUser();
 
   return useQuery({
-    queryKey: tripQueryKey(id),
+    queryKey: tripKeys.detail(user?.id ?? '', id ?? ''),
     queryFn: async (): Promise<TripWithDestinations | null> => {
       if (!user || !id) return null;
 
@@ -96,7 +110,7 @@ export function useCreateTrip({ onSuccess, onError }: TripCallbacks = {}) {
       throwIfError(error);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
       onSuccess?.();
     },
     onError,
@@ -157,9 +171,13 @@ export function useUpdateTrip({ onSuccess, onError }: TripCallbacks = {}) {
         }
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips'] });
-      queryClient.invalidateQueries({ queryKey: tripQueryKey(null) });
+    onSuccess: (_data, variables) => {
+      if (user) {
+        queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
+        queryClient.invalidateQueries({
+          queryKey: tripKeys.detail(user.id, variables.id),
+        });
+      }
       onSuccess?.();
     },
     onError,
@@ -197,8 +215,13 @@ export function useDeleteTrip({ onSuccess, onError }: TripCallbacks = {}) {
 
       throwIfError(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trips'] });
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: tripKeys.lists() });
+      if (user) {
+        queryClient.removeQueries({
+          queryKey: tripKeys.detail(user.id, id),
+        });
+      }
       onSuccess?.();
     },
     onError,
