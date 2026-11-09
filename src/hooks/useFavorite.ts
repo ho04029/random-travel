@@ -5,9 +5,15 @@ import { supabase } from '@/utils/supabase/client';
 import { useUser } from '@/hooks/useUser';
 import { throwIfError } from '@/utils/error';
 
-export const favoriteQueryKey = (destinationId: string | null) =>
-  ['favorite', destinationId] as const;
-export const favoritesQueryKey = ['favorites'] as const;
+// Query Key factories
+export const favoriteKeys = {
+  all: ['favorite'] as const,
+  lists: () => [...favoriteKeys.all, 'list'] as const,
+  list: (userId: string) => [...favoriteKeys.lists(), userId] as const,
+  details: () => [...favoriteKeys.all, 'detail'] as const,
+  detail: (userId: string, destinationId: string) =>
+    [...favoriteKeys.details(), userId, destinationId] as const,
+};
 
 async function fetchFavorite(destinationId: string | null, userId: string) {
   if (!destinationId) return false;
@@ -29,17 +35,19 @@ export function useFavorite(destinationId: string | null) {
   const queryClient = useQueryClient();
 
   const { data: isFavorite, isLoading } = useQuery({
-    queryKey: favoriteQueryKey(destinationId),
+    queryKey: favoriteKeys.detail(user?.id ?? '', destinationId ?? ''),
     queryFn: () => fetchFavorite(destinationId, user!.id),
     enabled: !!user && !!destinationId,
   });
 
   // 쿼리키 유효성 제거
   const invalidateFavorites = () => {
+    if (!user) return;
+
     queryClient.invalidateQueries({
-      queryKey: favoriteQueryKey(destinationId),
+      queryKey: favoriteKeys.detail(user.id, destinationId!),
     });
-    queryClient.invalidateQueries({ queryKey: favoritesQueryKey });
+    queryClient.invalidateQueries({ queryKey: favoriteKeys.list(user.id) });
   };
 
   // 좋아요 추가

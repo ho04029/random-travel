@@ -8,10 +8,12 @@ import { getErrorMessage, throwIfError } from '@/utils/error';
 import { Card, CardContent } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { cn } from '@/utils/cn';
-import { favoritesQueryKey, useFavorite } from '@/hooks/useFavorite';
+import { favoriteKeys, useFavorite } from '@/hooks/useFavorite';
+import { useUser } from '@/hooks/useUser';
 import { QueryData } from '@supabase/supabase-js';
 
-const query = supabase.from('favorite_destinations').select(`
+const buildQuery = () =>
+  supabase.from('favorite_destinations').select(`
     id,
     destinations (
       id,
@@ -22,7 +24,7 @@ const query = supabase.from('favorite_destinations').select(`
     )
   `);
 
-type Favorites = QueryData<typeof query>;
+type Favorites = QueryData<ReturnType<typeof buildQuery>>;
 
 function FavoriteCard({ favorite }: { favorite: Favorites[number] }) {
   const router = useRouter();
@@ -85,21 +87,20 @@ function FavoriteCard({ favorite }: { favorite: Favorites[number] }) {
 }
 
 export default function FavoritePage() {
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: favoritesQueryKey,
-    queryFn: async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  const { user } = useUser();
 
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: favoriteKeys.list(user?.id ?? ''),
+    queryFn: async (): Promise<Favorites> => {
       if (!user) return [];
 
-      const { data, error } = await query.eq('user_id', user.id);
+      const { data, error } = await buildQuery().eq('user_id', user.id);
 
       throwIfError(error);
 
-      return data;
+      return data ?? [];
     },
+    enabled: !!user,
   });
 
   const favorites = data ?? [];
