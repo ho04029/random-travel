@@ -10,9 +10,9 @@ import {
   MapPin,
   Home,
   Shuffle,
-  Users,
+  // Users,
   FileText,
-  Share2,
+  // Share2,
   Heart,
   LogOut,
   Menu,
@@ -32,11 +32,11 @@ const navItems = [
     label: '랜덤 뽑기',
     icon: Shuffle,
   },
-  {
-    href: '/friends',
-    label: '친구',
-    icon: Users,
-  },
+  // {
+  //   href: '/friends',
+  //   label: '친구',
+  //   icon: Users,
+  // },
   {
     href: '/trips',
     label: '여행기',
@@ -47,12 +47,12 @@ const navItems = [
     label: '좋아요',
     icon: Heart,
   },
-  {
-    href: '/shared',
-    label: '공유받은 여행지',
-    icon: Share2,
-    badgeCount: 3, // 없으면 undefined
-  },
+  // {
+  //   href: '/shared',
+  //   label: '공유받은 여행지',
+  //   icon: Share2,
+  //   badgeCount: 3, // 없으면 undefined
+  // },
 ];
 
 type NavLinkProps = {
@@ -63,18 +63,18 @@ type NavLinkProps = {
 // nav 메뉴들
 function NavLink({ item, onClick, variant }: NavLinkProps) {
   const Icon = item.icon;
-  const badge =
-    item.badgeCount && item.badgeCount > 0 ? (
-      <span
-        className={
-          variant === 'desktop'
-            ? 'absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'
-            : 'ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'
-        }
-      >
-        {item.badgeCount}
-      </span>
-    ) : null;
+  // const badge =
+  //   item.badgeCount && item.badgeCount > 0 ? (
+  //     <span
+  //       className={
+  //         variant === 'desktop'
+  //           ? 'absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'
+  //           : 'ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'
+  //       }
+  //     >
+  //       {item.badgeCount}
+  //     </span>
+  //   ) : null;
 
   if (variant === 'desktop') {
     return (
@@ -83,12 +83,12 @@ function NavLink({ item, onClick, variant }: NavLinkProps) {
         className={cn(
           buttonVariants({ variant: 'ghost' }),
           'relative hidden items-center md:flex',
-          item.badgeCount && 'pr-8',
+          // item.badgeCount && 'pr-8',
         )}
       >
         <Icon className="mr-2 h-4 w-4" />
         {item.label}
-        {badge}
+        {/* {badge} */}
       </Link>
     );
   }
@@ -101,7 +101,7 @@ function NavLink({ item, onClick, variant }: NavLinkProps) {
     >
       <Icon className="h-5 w-5" />
       {item.label}
-      {badge}
+      {/* {badge} */}
     </Link>
   );
 }
